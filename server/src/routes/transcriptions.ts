@@ -1,9 +1,10 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { randomUUID } from 'crypto';
 import { writeJson, readJson } from '../utils/fsutil.js';
-import { enqueueTranscription, initQueue } from '../services/queue.js';
-import { TranscriptionJob, TranscriptResult } from '../models/types.js';
+import { enqueueTranscription } from '../services/queue.js';
+import { TranscriptionJob } from '../models/types.js';
 
 const router = express.Router();
 const jobsDir = path.resolve('./data/jobs');
@@ -44,7 +45,6 @@ router.post('/', (req, res) => {
 
 // List jobs (basic)
 router.get('/', (_req, res) => {
-  const fs = require('fs');
   const files = fs.readdirSync(jobsDir).filter((f: string) => f.endsWith('.json'));
   const jobs = files.map((f: string) => readJson<TranscriptionJob>(path.join(jobsDir, f), undefined as any))
     .filter(Boolean)
