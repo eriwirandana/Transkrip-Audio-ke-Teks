@@ -9,6 +9,7 @@ import uploadRouter from './routes/upload.js';
 import transcriptionsRouter from './routes/transcriptions.js';
 import exportRouter from './routes/export.js';
 import { ensureDirectories } from './utils/fsutil.js';
+import { initQueue } from './services/queue.js';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
@@ -42,6 +43,9 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   const status = err.status || 500;
   res.status(status).json({ error: err.message || 'Internal Server Error' });
 });
+
+// Initialize queue/in-memory processor
+initQueue();
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);

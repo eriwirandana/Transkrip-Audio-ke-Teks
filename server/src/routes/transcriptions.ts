@@ -10,7 +10,7 @@ const jobsDir = path.resolve('./data/jobs');
 
 // Create transcription job from uploaded file metadata
 router.post('/', (req, res) => {
-  const { storedFilename, originalName, mimetype, size } = req.body || {};
+  const { storedFilename, originalName, mimetype, size, url } = req.body || {};
   if (!storedFilename) return res.status(400).json({ error: 'storedFilename is required' });
   const filePath = path.resolve('./uploads', storedFilename);
 
@@ -23,6 +23,7 @@ router.post('/', (req, res) => {
       originalName: originalName || storedFilename,
       mimetype: mimetype || 'application/octet-stream',
       size: size ? Number(size) : 0,
+      webUrl: typeof url === 'string' ? url : undefined,
     },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

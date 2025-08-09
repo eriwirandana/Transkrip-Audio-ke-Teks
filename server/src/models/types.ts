@@ -60,6 +60,7 @@ export interface TranscriptionJob {
     originalName: string;
     mimetype: string;
     size: number;
+    webUrl?: string;
   };
   createdAt: string;
   updatedAt: string;
