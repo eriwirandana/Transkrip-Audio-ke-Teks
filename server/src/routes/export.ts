@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { readJson } from '../utils/fsutil.js';
 import { TranscriptionJob } from '../models/types.js';
-import { buildDocxBuffer, buildSrtText, buildTxtText, buildJson, buildXlsxBuffer } from '../services/exporters.js';
+import { buildDocxBuffer, buildSrtText, buildTxtText, buildJson, buildXlsxBuffer, buildPdfBuffer } from '../services/exporters.js';
 
 const router = express.Router();
 const jobsDir = path.resolve('./data/jobs');
@@ -54,6 +54,16 @@ router.get('/:id/xlsx', async (req, res) => {
   const buf = await buildXlsxBuffer(job);
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', `attachment; filename="transcript-${job.id}.xlsx"`);
+  res.send(buf);
+});
+
+router.get('/:id/pdf', async (req, res) => {
+  const file = path.join(jobsDir, `${req.params.id}.json`);
+  const job = readJson<TranscriptionJob>(file, undefined as any);
+  if (!job || !job.result) return res.status(404).json({ error: 'Result not found' });
+  const buf = await buildPdfBuffer(job);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="transcript-${job.id}.pdf"`);
   res.send(buf);
 });
 

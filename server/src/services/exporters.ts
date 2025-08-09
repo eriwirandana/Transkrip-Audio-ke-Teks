@@ -167,3 +167,49 @@ export async function buildXlsxBuffer(job: TranscriptionJob): Promise<Buffer> {
   const buf = await wb.xlsx.writeBuffer();
   return Buffer.from(buf);
 }
+
+// PDF Export (A4, simple academic formatting). Password protection not yet implemented.
+export async function buildPdfBuffer(job: TranscriptionJob): Promise<Buffer> {
+  const PDFDocument = (await import('pdfkit')).default;
+  const res = job.result!;
+  const showHours = res.durationMs >= 3600000;
+
+  const doc = new PDFDocument({ size: 'A4', margins: { top: 72, bottom: 72, left: 72, right: 72 } });
+  const chunks: Buffer[] = [];
+  return await new Promise<Buffer>((resolve, reject) => {
+    doc.on('data', (c: Buffer) => chunks.push(c));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    // Header
+    doc.fontSize(16).text('TRANSKRIP WAWANCARA', { align: 'center' });
+    doc.moveDown(1);
+    doc.fontSize(12);
+    const totalSec = Math.floor(res.durationMs / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    doc.text(`Judul: ${job.file.originalName}`);
+    doc.text(`Tanggal: ${new Date(job.createdAt).toLocaleDateString('id-ID')}`);
+    doc.text(`Durasi: ${pad(h)}:${pad(m)}:${pad(s)}`);
+    doc.text(`Jumlah Pembicara: ${res.speakers.length}`);
+    doc.moveDown(1);
+
+    // Body
+    for (const seg of res.segments) {
+      const ts = msToTag(seg.start, showHours);
+      doc.font('Times-Roman').fontSize(12).text(`${ts} ${seg.speaker}:`, { continued: true, underline: false, bold: false });
+      doc.text(` ${seg.text}`);
+      doc.moveDown(0.5);
+    }
+
+    // Footer page numbers
+    const range = doc.bufferedPageRange();
+    for (let i = 0; i < range.count; i++) {
+      doc.switchToPage(i);
+      doc.fontSize(9).text(`${i + 1} / ${range.count}`, 0, doc.page.height - 50, { align: 'center' });
+    }
+
+    doc.end();
+  });
+}
