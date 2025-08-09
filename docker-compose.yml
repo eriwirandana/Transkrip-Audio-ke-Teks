@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: transkriptor-redis
+    ports:
+      - '6379:6379'
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: transkriptor-server
+    env_file:
+      - ./server/.env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - '4000:4000'
+    depends_on:
+      - redis
+    volumes:
+      - ./server/uploads:/app/uploads
+      - ./server/data:/app/data
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: transkriptor-web
+    ports:
+      - '5173:5173'
+    depends_on:
+      - server
