@@ -1,0 +1,28 @@
+{
+  "name": "indonesian-audio-transcription",
+  "version": "1.0.0",
+  "description": "Professional Indonesian audio transcription web application for academic research",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "server:start": "cd server && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "test": "cd client && npm test && cd ../server && npm test"
+  },
+  "keywords": [
+    "audio",
+    "transcription",
+    "indonesian",
+    "speech-to-text",
+    "academic",
+    "interview"
+  ],
+  "author": "Indonesian Transcription Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
