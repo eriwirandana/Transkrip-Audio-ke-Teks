@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
-import { fileURLToPath } from 'url';
+
 import createError from 'http-errors';
 import uploadRouter from './routes/upload.js';
 import transcriptionsRouter from './routes/transcriptions.js';
